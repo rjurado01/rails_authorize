@@ -2,7 +2,7 @@ require 'rails_authorize/version'
 
 module RailsAuthorize
   # Error that will be raised when authorization has failed
-  class NotAuthorizedError < Error; end
+  class NotAuthorizedError < StandardError; end
 
   ##
   # Finds authorization class for given object and returns new instance
@@ -49,9 +49,9 @@ module RailsAuthorize
   # @param options[:action] [String] the method to check on the authorization (e.g. `:show?`)
   #
   # @raise [NotAuthorizedError] if the given action method returned false
-  # @return [Scope] authorized scope
+  # @return [Scope] authorization scope
   #
-  def authorize_scope(object, options={})
+  def authorized_scope(object, options={})
     action = options[:action] || "#{action_name}?"
     authorization = authorization(object, options)
 
