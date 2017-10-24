@@ -58,24 +58,24 @@ RSpec.describe RailsAuthorize do
   describe '.authorize' do
     context 'when authorization method returns true' do
       it 'returns object' do
-        authorization = PostAuthorization.new(user, post, {})
-        expect(subject).to receive(:authorization).with(post, {}).and_return(authorization)
         expect(subject.authorize(post)).to eq(post)
       end
     end
 
     context 'when authorization method returns false' do
+      let(:action_name) { :show }
+
       it 'throws NotAuthorizedError error' do
-        authorization = PostAuthorization.new(user, post, {})
-        allow(authorization).to receive('index?').and_return(false)
-        expect(subject).to receive(:authorization).with(post, {}).and_return(authorization)
         expect { subject.authorize(post) }.to raise_error(RailsAuthorize::NotAuthorizedError)
       end
     end
 
     context 'when use default values' do
       it 'uses controller action name' do
-        expect(subject.authorization(post).object).to eq post
+        authorization = PostAuthorization.new(user, post, {})
+        expect(subject).to receive(:authorization).with(post, {}).and_return(authorization)
+        expect(authorization).to receive('index?').and_return(true)
+        subject.authorize(post)
       end
     end
 
@@ -85,6 +85,48 @@ RSpec.describe RailsAuthorize do
         expect(subject).to receive(:authorization).with(post, {}).and_return(authorization)
         expect(authorization).to receive('custom?').and_return(true)
         subject.authorize(post, action: 'custom?')
+      end
+    end
+  end
+
+  describe '.authorization_scope' do
+    it 'returns authorization scope' do
+      expect(subject.authorization_scope(Post)).to eq([])
+    end
+  end
+
+  describe '.authorized_scope' do
+    context 'when authorization method returns true' do
+      it 'returns authorization scope' do
+        expect(subject.authorized_scope(Post)).to eq([])
+      end
+    end
+
+    context 'when authorization method returns false' do
+      let(:action_name) { :show }
+
+      it 'throws NotAuthorizedError error' do
+        expect {
+          subject.authorized_scope(Post)
+        }.to raise_error(RailsAuthorize::NotAuthorizedError)
+      end
+    end
+
+    context 'when use default values' do
+      it 'uses controller action name' do
+        authorization = PostAuthorization.new(user, Post, {})
+        expect(subject).to receive(:authorization).with(Post, {}).and_return(authorization)
+        expect(authorization).to receive('index?').and_return(true)
+        subject.authorized_scope(Post)
+      end
+    end
+
+    context 'when pass :action option' do
+      it 'uses this as authorization method name' do
+        authorization = PostAuthorization.new(user, Post, {})
+        expect(subject).to receive(:authorization).with(Post, {}).and_return(authorization)
+        expect(authorization).to receive('custom?').and_return(true)
+        subject.authorized_scope(Post, action: 'custom?')
       end
     end
   end

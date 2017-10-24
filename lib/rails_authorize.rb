@@ -42,6 +42,18 @@ module RailsAuthorize
   end
 
   ##
+  # Retrieves the authorization scope for the given object
+  #
+  # @param object [Object] the object we're retrieving the policy scope for
+  # @param options [Hash] key/value options (user, authorization, context)
+  #
+  # @return [Scope] authorized scope
+  #
+  def authorization_scope(object, options={})
+    authorization(object, options).scope
+  end
+
+  ##
   # Throwing an error if the user is not authorized to perform the given action
   #
   # @param object [Object] the object we're retrieving the policy scope for
@@ -52,23 +64,11 @@ module RailsAuthorize
   # @return [Scope] authorization scope
   #
   def authorized_scope(object, options={})
-    action = options[:action] || "#{action_name}?"
+    action = options.delete(:action) || "#{action_name}?"
     authorization = authorization(object, options)
 
     raise(NotAuthorizedError) unless authorization.public_send(action)
 
     authorization.scope
-  end
-
-  ##
-  # Retrieves the authorization scope for the given object
-  #
-  # @param object [Object] the object we're retrieving the policy scope for
-  # @param options [Hash] key/value options (user, authorization, context)
-  #
-  # @return [Scope] authorized scope
-  #
-  def authorization_scope(object, options={})
-    authorization(object, options).scope
   end
 end

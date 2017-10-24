@@ -44,4 +44,12 @@ class PostAuthorization < ApplicationAuthorization
   def index?
     true
   end
+
+  def show?
+    false
+  end
+
+  def scope
+    []
+  end
 end
