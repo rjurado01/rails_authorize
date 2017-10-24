@@ -33,8 +33,8 @@ module RailsAuthorize
   # @return [Object] the passed object
   #
   def authorize(object, options={})
-    action = options[:action] || "#{action_name}?"
-    authorization = authorization(scope, options)
+    action = options.delete(:action) || "#{action_name}?"
+    authorization = authorization(object, options)
 
     raise(NotAuthorizedError) unless authorization.public_send(action)
 
