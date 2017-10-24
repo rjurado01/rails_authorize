@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['rjurado01@gmail.com']
 
   spec.summary       = 'Simple and flexible authorization Rails system'
-  spec.description   = 'Simple and flexible authorization Rails system'
+  spec.description   = 'Authorization system for Rails with only few helpers and regular Ruby classes.'
   spec.homepage      = 'https://github.com/rjurado01/rails_authorize'
   spec.license       = 'MIT'
 
@@ -21,9 +21,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'bundler', '~> 1.15.4'
+  spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
 
-  spec.add_dependency 'activesupport', '>= 3.0.0'
+  spec.add_dependency 'activesupport', '~> 3.0', '>= 3.0.0'
 end
