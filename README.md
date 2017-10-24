@@ -1,9 +1,7 @@
 # RailsAuthorize
 ![Build Status](https://travis-ci.org/rjurado01/rails_authorize.svg?branch=master)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/rails_authorize`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Simple and flexible authorization Rails system inspired by Pundit.
 
 ## Installation
 
@@ -21,9 +19,72 @@ Or install it yourself as:
 
     $ gem install rails_authorize
 
-## Usage
+## Example
 
-TODO: Write usage instructions here
+```
+# app/models/post.rb
+
+class Post
+  def published?
+    return published == true
+  end
+end
+```
+
+```
+# app/authorizations/application_authorization.rb
+
+class ApplicationAuthorization
+  attr_reader :user, :target, :context
+
+  def initialize(user, target, context)
+    @user = user
+    @target = target
+    @context = context
+  end
+end
+```
+
+```
+# app/authorizations/post_authorization.rb
+
+class PostAuthorization < ApplicationAuthorization
+  def index?
+    true
+  end
+
+  def show?
+    user.is_admin? and target.published?
+  end
+
+  def scope
+    target.where(published: true)
+  end
+end
+```
+
+```
+# app/controllers/application_controller.rb
+
+class ApplicationController < ActionController::Base
+  include RailsAuthorization
+end
+```
+
+```
+# app/controllers/posts_controller.rb
+
+class PostController
+  def index
+    @posts = authorized_scope(Post)
+  end
+
+  def show
+    @post = Post.find(params[:id])
+    authorize @post
+  end
+end
+```
 
 ## Development
 

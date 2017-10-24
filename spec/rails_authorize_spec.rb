@@ -15,12 +15,12 @@ RSpec.describe RailsAuthorize do
 
   describe '.authorization' do
     context 'when use default values' do
-      it 'returns new object authorization instance' do
+      it 'returns new target authorization instance' do
         expect(subject.authorization(post).class).to eq PostAuthorization
       end
 
-      it 'uses passed :object' do
-        expect(subject.authorization(post).object).to eq post
+      it 'uses passed :target' do
+        expect(subject.authorization(post).target).to eq post
       end
 
       it 'uses :current_user' do
@@ -28,7 +28,7 @@ RSpec.describe RailsAuthorize do
       end
     end
 
-    context 'when object has not authorization' do
+    context 'when target has not authorization' do
       it 'throws an error' do
         expect { subject.authorization(without_authorization).class }.to raise_error(NameError)
       end
@@ -57,7 +57,7 @@ RSpec.describe RailsAuthorize do
 
   describe '.authorize' do
     context 'when authorization method returns true' do
-      it 'returns object' do
+      it 'returns target' do
         expect(subject.authorize(post)).to eq(post)
       end
     end

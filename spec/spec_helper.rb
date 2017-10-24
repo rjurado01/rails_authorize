@@ -31,11 +31,11 @@ class Post < Model
 end
 
 class ApplicationAuthorization
-  attr_reader :user, :object, :context
+  attr_reader :user, :target, :context
 
-  def initialize(user, object, context)
+  def initialize(user, target, context)
     @user = user
-    @object = object
+    @target = target
     @context = context
   end
 end
