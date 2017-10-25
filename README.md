@@ -21,7 +21,7 @@ Or install it yourself as:
 
 ## Example
 
-```
+```ruby
 # app/models/post.rb
 
 class Post
@@ -31,7 +31,7 @@ class Post
 end
 ```
 
-```
+```ruby
 # app/authorizations/application_authorization.rb
 
 class ApplicationAuthorization
@@ -45,7 +45,7 @@ class ApplicationAuthorization
 end
 ```
 
-```
+```ruby
 # app/authorizations/post_authorization.rb
 
 class PostAuthorization < ApplicationAuthorization
@@ -63,7 +63,7 @@ class PostAuthorization < ApplicationAuthorization
 end
 ```
 
-```
+```ruby
 # app/controllers/application_controller.rb
 
 class ApplicationController < ActionController::Base
@@ -71,7 +71,7 @@ class ApplicationController < ActionController::Base
 end
 ```
 
-```
+```ruby
 # app/controllers/posts_controller.rb
 
 class PostController
