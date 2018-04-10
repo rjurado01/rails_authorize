@@ -32,9 +32,9 @@ end
 ```
 
 ```ruby
-# app/authorizations/application_authorization.rb
+# app/policies/application_policy.rb
 
-class ApplicationAuthorization
+class ApplicationPolicy
   attr_reader :user, :target, :context
 
   def initialize(user, target, context)
@@ -46,9 +46,9 @@ end
 ```
 
 ```ruby
-# app/authorizations/post_authorization.rb
+# app/policies/post_policy.rb
 
-class PostAuthorization < ApplicationAuthorization
+class PostPolicy < ApplicationPolicy
   def index?
     true
   end
@@ -67,7 +67,7 @@ end
 # app/controllers/application_controller.rb
 
 class ApplicationController < ActionController::Base
-  include RailsAuthorization
+  include RailsAuthorize
 end
 ```
 

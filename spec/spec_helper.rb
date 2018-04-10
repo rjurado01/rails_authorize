@@ -24,13 +24,13 @@ class Model
   end
 end
 
-class WithoutAuthorization < Model
+class WithoutPolicy < Model
 end
 
 class Post < Model
 end
 
-class ApplicationAuthorization
+class ApplicationPolicy
   attr_reader :user, :target, :context
 
   def initialize(user, target, context)
@@ -40,7 +40,7 @@ class ApplicationAuthorization
   end
 end
 
-class PostAuthorization < ApplicationAuthorization
+class PostPolicy < ApplicationPolicy
   def index?
     true
   end

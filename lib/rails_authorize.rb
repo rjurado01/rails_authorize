@@ -5,19 +5,19 @@ module RailsAuthorize
   class NotAuthorizedError < StandardError; end
 
   ##
-  # Finds authorization class for given target and returns new instance
+  # Finds policy class for given target and returns new instance
   #
-  # @param target [any] the target to load authorization
-  # @param options [Hash] key/value options (user, authorization, context)
+  # @param target [any] the target to load policy
+  # @param options [Hash] key/value options (user, policy, context)
   # @param options[:user] [Object] the user that initiated the action
-  # @param options[:authorization] [Class] Authorization class to use for authenticate
-  # @param options[:context] [Hash] other key/value options to use in the authorization methods
+  # @param options[:policy] [Class] Authorization class to use for authenticate
+  # @param options[:context] [Hash] other key/value options to use in the policy methods
   #
-  # @return [Object] new authorization instance
+  # @return [Object] new policy instance
   #
-  def authorization(target, options={})
+  def policy(target, options={})
     user = options[:user] || current_user
-    klass = options[:authorization] || "#{target.model_name.name}Authorization".constantize
+    klass = options[:policy] || "#{target.model_name.name}Policy".constantize
 
     klass.new(user, target, options[:context])
   end
@@ -26,49 +26,49 @@ module RailsAuthorize
   # Throwing an error if the user is not authorized to perform the given action
   #
   # @param target [Object] the target we're checking permissions of
-  # @param options [Hash] key/value options (action, user, authorization, context)
-  # @param options[:action] [String] the method to check on the authorization (e.g. `:show?`)
+  # @param options [Hash] key/value options (action, user, policy, context)
+  # @param options[:action] [String] the method to check on the policy (e.g. `:show?`)
   #
   # @raise [NotAuthorizedError] if the given action method returned false
   # @return [Object] the passed target
   #
   def authorize(target, options={})
     action = options.delete(:action) || "#{action_name}?"
-    authorization = authorization(target, options)
+    policy = policy(target, options)
 
-    raise(NotAuthorizedError) unless authorization.public_send(action)
+    raise(NotAuthorizedError) unless policy.public_send(action)
 
     target
   end
 
   ##
-  # Retrieves the authorization scope for the given target
+  # Retrieves the policy scope for the given target
   #
   # @param target [Object] the target we're retrieving the policy scope for
-  # @param options [Hash] key/value options (user, authorization, context)
+  # @param options [Hash] key/value options (user, policy, context)
   #
-  # @return [Scope] authorized scope
+  # @return [Scope] policy scope
   #
-  def authorization_scope(target, options={})
-    authorization(target, options).scope
+  def policy_scope(target, options={})
+    policy(target, options).scope
   end
 
   ##
   # Throwing an error if the user is not authorized to perform the given action
   #
   # @param target [Object] the target we're retrieving the policy scope for
-  # @param options [Hash] key/value options (action, user, authorization, context)
-  # @param options[:action] [String] the method to check on the authorization (e.g. `:show?`)
+  # @param options [Hash] key/value options (action, user, policy, context)
+  # @param options[:action] [String] the method to check on the policy (e.g. `:show?`)
   #
   # @raise [NotAuthorizedError] if the given action method returned false
-  # @return [Scope] authorization scope
+  # @return [Scope] authorized policy scope
   #
   def authorized_scope(target, options={})
     action = options.delete(:action) || "#{action_name}?"
-    authorization = authorization(target, options)
+    policy = policy(target, options)
 
-    raise(NotAuthorizedError) unless authorization.public_send(action)
+    raise(NotAuthorizedError) unless policy.public_send(action)
 
-    authorization.scope
+    policy.scope
   end
 end
