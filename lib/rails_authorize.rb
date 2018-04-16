@@ -19,7 +19,7 @@ module RailsAuthorize
     user = options[:user] || current_user
     klass = options[:policy] || "#{target.model_name.name}Policy".constantize
 
-    klass.new(user, target, options[:context])
+    klass.new(user, target, options[:context] || {})
   end
 
   ##

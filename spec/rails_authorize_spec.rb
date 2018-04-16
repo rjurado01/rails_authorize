@@ -53,6 +53,12 @@ RSpec.describe RailsAuthorize do
         expect(subject.policy(post, context: context).context).to eq(context)
       end
     end
+
+    context 'when do not pass :context option' do
+      it 'sets default context' do
+        expect(subject.policy(post).context).to eq({})
+      end
+    end
   end
 
   describe '.authorize' do
