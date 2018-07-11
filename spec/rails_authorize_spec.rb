@@ -101,6 +101,74 @@ RSpec.describe RailsAuthorize do
     end
   end
 
+  describe '.permitted_attributes' do
+    let(:data_post) { {surname: 'sd', name: 'Francesco', not_permitted: 'not'} }
+
+    before do
+      @policy = PostPolicy.new(user, post, {})
+      allow(subject).to receive(:policy).with(post, {}).and_return(@policy)
+    end
+
+    context 'when param_key is not personalized' do
+      before do
+        params = ActionController::Parameters.new(post: data_post)
+        allow(subject).to receive(:params).and_return(params)
+      end
+
+      context 'when has a generic method of permitted_attributes' do
+        before do
+          allow(@policy).to receive(:permitted_attributes).and_return(%i[name])
+        end
+
+        it 'is called' do
+          expect(subject.permitted_attributes(post).to_hash).to eq('name' => data_post[:name])
+        end
+      end
+
+      context 'when has a specific method for current action' do
+        before do
+          allow(@policy).to receive(:permitted_attributes_for_create).and_return(%i[surname])
+        end
+
+        it 'is called instead of generic' do
+          expect(subject.permitted_attributes(post, action: :create).to_hash).to eq(
+            'surname' => data_post[:surname]
+          )
+        end
+      end
+    end
+
+    context 'when param_key is personalized' do
+      before do
+        params = ActionController::Parameters.new(data: data_post)
+        allow(subject).to receive(:params).and_return(params)
+        allow(@policy).to receive(:param_key).and_return(:data)
+      end
+
+      context 'when has a generic method of permitted_attributes' do
+        before do
+          allow(@policy).to receive(:permitted_attributes).and_return(%i[name])
+        end
+
+        it 'is called' do
+          expect(subject.permitted_attributes(post).to_hash).to eq('name' => data_post[:name])
+        end
+      end
+
+      context 'when has a specific method for current action' do
+        before do
+          allow(@policy).to receive(:permitted_attributes_for_create).and_return(%i[surname])
+        end
+
+        it 'is called instead of generic' do
+          expect(subject.permitted_attributes(post, action: :create).to_hash).to eq(
+            'surname' => data_post[:surname]
+          )
+        end
+      end
+    end
+  end
+
   describe '.authorized_scope' do
     context 'when policy method returns true' do
       it 'returns policy scope' do

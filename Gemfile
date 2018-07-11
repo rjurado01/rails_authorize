@@ -4,3 +4,8 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
 # Specify your gem's dependencies in rails_authorize.gemspec
 gemspec
+
+group :test do
+  gem 'activesupport', '>= 3.0.0'
+  gem 'actionpack', '>= 3.0.0'
+end
