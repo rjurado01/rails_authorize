@@ -62,7 +62,7 @@ class PostPolicy < ApplicationPolicy
   end
 
   def permitted_attributes
-    if user.can?(:edit_status)
+    if user.admin?
       %i[status body title]
     else
       %i[body title]
@@ -70,9 +70,6 @@ class PostPolicy < ApplicationPolicy
   end
 end
 ```
-You could also define a `permitted_attributes_for_{name_action}` and it will be called instead of `permitted_attributes`.
-
-By default `permitted_attributes` makes `params.require(:post)` if you want to personalize what attribute is required in params, your policy must define a `param_key`.
 
 ```ruby
 # app/controllers/application_controller.rb
@@ -88,15 +85,85 @@ end
 class PostController
   def index
     @posts = authorized_scope(Post)
+    ...
   end
 
   def update
+    @post = Post.find(params[:id])
     @post.update(permitted_attributes(@post))
+    ...
   end
 
   def show
     @post = Post.find(params[:id])
     authorize @post
+    ...
+  end
+end
+```
+
+## Strong parameters
+
+Rails uses [strong_parameters](http://edgeguides.rubyonrails.org/action_controller_overview.html#strong-parameters) to handle mass-assignment protection in the controller.  With this gem you can control which attributes a user has access via your policies.
+
+You can set up a `permitted_attributes` method in your policy like this:
+
+```ruby
+# app/policies/post_policy.rb
+
+class PostPolicy < ApplicationPolicy
+  def permitted_attributes
+    if user.admin?
+      %i[status body title]
+    else
+      %i[body title]
+    end
+  end
+end
+```
+
+You can now retrieve these attributes from the policy:
+
+```ruby
+policy(@post).permitted_attributes
+```
+
+Rails Authorize provides `permitted_attributes` helper method to use it in your controllers:
+
+```ruby
+# app/controllers/posts_controller.rb
+
+class PostController
+  def update
+    @post.update(permitted_attributes(@post))
+  end
+end
+```
+
+By default `permitted_attributes` makes `params.require(:post)` if you want to personalize what attribute is required in params, your policy must define a `param_key`.
+
+```ruby
+# app/policies/post_policy.rb
+
+class PostPolicy < ApplicationPolicy
+  def param_key
+    'custom_key'
+  end
+end
+```
+
+If you want to permit different attributes based on the current action, you can define a `permitted_attributes_for_#{action_name}` method on your policy:
+
+```ruby
+# app/policies/post_policy.rb
+
+class PostPolicy < ApplicationPolicy
+  def permitted_attributes_for_create
+    [:title, :body]
+  end
+
+  def permitted_attributes_for_update
+    [:body]
   end
 end
 ```
