@@ -1,6 +1,7 @@
 require 'bundler/setup'
 require 'rails_authorize'
 require 'active_support/all'
+require 'action_controller'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

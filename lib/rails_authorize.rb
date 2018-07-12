@@ -71,4 +71,33 @@ module RailsAuthorize
 
     policy.scope
   end
+
+  # Retrieves a set of permitted attributes from the policy by instantiating
+  # the policy class for the given record and calling `permitted_attributes` on
+  # it, or `permitted_attributes_for_{action}` if `action` is defined. It then infers
+  # what key the record should have in the params hash and retrieves the
+  # permitted attributes from the params hash under that key.
+  #
+  # @param record [Object] the object we're retrieving permitted attributes for
+  # @param options [Hash] key/value options (action, user, policy, context)
+  # @param options[:action] [String] the method to check on the policy (e.g. `:show?`)
+  # @return [Hash{String => Object}] the permitted attributes
+  def permitted_attributes(target, options={})
+    action = options.delete(:action) || action_name
+    policy = policy(target, options)
+
+    method_name = if policy.respond_to?("permitted_attributes_for_#{action}")
+                    "permitted_attributes_for_#{action}"
+                  else
+                    'permitted_attributes'
+                  end
+
+    param_key = if policy.try(:param_key).present?
+                  policy.param_key
+                else
+                  target.model_name.name.underscore
+                end
+
+    params.require(param_key).permit(*policy.public_send(method_name))
+  end
 end

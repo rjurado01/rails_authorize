@@ -60,8 +60,19 @@ class PostPolicy < ApplicationPolicy
   def scope
     target.where(published: true)
   end
+
+  def permitted_attributes
+    if user.can?(:edit_status)
+      %i[status body title]
+    else
+      %i[body title]
+    end
+  end
 end
 ```
+You could also define a `permitted_attributes_for_{name_action}` and it will be called instead of `permitted_attributes`.
+
+By default `permitted_attributes` makes `params.require(:post)` if you want to personalize what attribute is required in params, your policy must define a `param_key`.
 
 ```ruby
 # app/controllers/application_controller.rb
@@ -77,6 +88,10 @@ end
 class PostController
   def index
     @posts = authorized_scope(Post)
+  end
+
+  def update
+    @post.update(permitted_attributes(@post))
   end
 
   def show
