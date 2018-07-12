@@ -102,6 +102,69 @@ class PostController
 end
 ```
 
+## Customize user
+
+Rails Authorize will call the `current_user` method to retrieve the user for authorization. If you need to customize it you can pass `user` as option to method `authorize`:
+
+```ruby
+# app/controllers/posts_controller.rb
+
+class PostController
+  def show
+    @post = Post.find(params[:id])
+    @user = User.find(params[:user_id])
+    authorize @post, user: @user
+    ...
+  end
+end
+```
+
+## Customize action
+
+Rails Authorize will use the controller action name as identifier of policy method to use for authorization. If you need to customize it you can pass `action` as option to method `authorize`:
+
+```ruby
+# app/controllers/posts_controller.rb
+
+class PostController
+  def show
+    @post = Post.find(params[:id])
+    authorize @post, action: :custom_action?
+    ...
+  end
+end
+```
+
+## Define context
+
+Rails Authorize allow you to define the context objects that you need to authorize an action:
+
+```ruby
+# app/controllers/posts_controller.rb
+
+class PostController
+  def show
+    @post = Post.find(params[:id])
+    authorize @post, context: {template: params[:template]}
+    ...
+  end
+end
+```
+
+```ruby
+# app/policies/post_policy.rb
+
+class PostPolicy < ApplicationPolicy
+  def show?
+    if context[:template] == 'complete' ?
+      user.is_admin?
+    else
+      true
+    end
+  end
+end
+```
+
 ## Strong parameters
 
 Rails uses [strong_parameters](http://edgeguides.rubyonrails.org/action_controller_overview.html#strong-parameters) to handle mass-assignment protection in the controller.  With this gem you can control which attributes a user has access via your policies.
