@@ -3,6 +3,8 @@ require 'rails_authorize/version'
 module RailsAuthorize
   # Error that will be raised when authorization has failed
   class NotAuthorizedError < StandardError; end
+  class AuthorizationNotPerformedError < StandardError; end
+  class ScopingNotPerformedError < StandardError; end
 
   ##
   # Finds policy class for given target and returns new instance
@@ -38,6 +40,8 @@ module RailsAuthorize
 
     raise(NotAuthorizedError) unless policy.public_send(action)
 
+    @_policy_authorized = true
+
     target
   end
 
@@ -50,6 +54,8 @@ module RailsAuthorize
   # @return [Scope] policy scope
   #
   def policy_scope(target, options={})
+    @_policy_scoped = true
+
     policy(target, options).scope
   end
 
@@ -99,5 +105,49 @@ module RailsAuthorize
                 end
 
     params.require(param_key).permit(*policy.public_send(method_name))
+  end
+
+  # Raises an error if authorization has not been performed
+  #
+  # @raise [AuthorizationNotPerformedError] if authorization has not been performed
+  # @return [void]
+  def verify_authorized
+    raise AuthorizationNotPerformedError, self.class unless policy_authorized?
+  end
+
+  # Allow this action not to perform authorization.
+  #
+  # @return [void]
+  def skip_authorization
+    @_policy_authorized = true
+  end
+
+  # Raises an error if policy scoping has not been performed
+  #
+  # @raise [AuthorizationNotPerformedError] if policy scoping has not been performed
+  # @return [void]
+  def verify_policy_scoped
+    raise ScopingNotPerformedError, self.class unless policy_scoped?
+  end
+
+  # Allow this action not to perform policy scoping.
+  #
+  # @return [void]
+  def skip_policy_scope
+    @_policy_scoped = true
+  end
+
+  protected
+
+  # @return [Boolean] whether authorization has been performed, i.e. whether
+  #                   one {#authorize} or {#skip_authorization} has been called
+  def policy_authorized?
+    @_policy_authorized == true
+  end
+
+  # @return [Boolean] whether policy scoping has been performed, i.e. whether
+  #                   one {#policy_scope} or {#skip_policy_scope} has been called
+  def policy_scoped?
+    @_policy_scoped == true
   end
 end

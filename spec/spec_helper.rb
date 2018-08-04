@@ -54,3 +54,14 @@ class PostPolicy < ApplicationPolicy
     []
   end
 end
+
+class Controller
+  include RailsAuthorize
+
+  attr_reader :current_user, :action_name
+
+  def initialize(current_user, action_name)
+    @current_user = current_user
+    @action_name = action_name
+  end
+end
