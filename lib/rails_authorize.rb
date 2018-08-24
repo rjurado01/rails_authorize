@@ -75,6 +75,8 @@ module RailsAuthorize
 
     raise(NotAuthorizedError) unless policy.public_send(action)
 
+    @_policy_scoped = @_policy_authorized = true
+
     policy.scope
   end
 

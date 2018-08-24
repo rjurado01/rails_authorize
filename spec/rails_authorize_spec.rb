@@ -217,9 +217,19 @@ RSpec.describe RailsAuthorize do
       end
     end
 
-    context 'when is authorized' do
+    context 'when .authorize is called' do
       before do
         controller.authorize(post)
+      end
+
+      it 'does nothing' do
+        controller.verify_authorized
+      end
+    end
+
+    context 'when .authorized_scope is used' do
+      before do
+        controller.authorized_scope(post)
       end
 
       it 'does nothing' do
@@ -247,7 +257,7 @@ RSpec.describe RailsAuthorize do
       end
     end
 
-    context 'when policy_scope is used' do
+    context 'when .policy_scope is used' do
       before do
         controller.policy_scope(Post)
       end
@@ -256,8 +266,17 @@ RSpec.describe RailsAuthorize do
         controller.verify_policy_scoped
       end
     end
+    context 'when .authorized_scope is used' do
+      before do
+        controller.authorized_scope(post)
+      end
 
-    context 'when authorized_scope is used' do
+      it 'does nothing' do
+        controller.verify_authorized
+      end
+    end
+
+    context 'when is not authorized' do
       it 'raises an ScopingNotPerformedError exception' do
         expect { controller.verify_policy_scoped }.to raise_error(
           RailsAuthorize::ScopingNotPerformedError
