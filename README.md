@@ -230,6 +230,32 @@ class PostPolicy < ApplicationPolicy
   end
 end
 ```
+## Ensuring authorization and scoping are performed
+
+In certain kind of applications where almost all or even the whole application is private, in each of the actions you have to make sure that authorization is performed. To make sure that developers perform authorization, RailsAuthorize provides two methods. `verify_authorized` makes sure that authorization is performed, and likewise `verify_policy_scoped` checks that scoping is performed 
+
+Both methods are mainly aimed to be called on `after_action`.
+```ruby
+class ApplicationController < ActionController::Base
+  include RailsAuthorize
+  after_action :verify_authorized, except: :index
+  after_action :verify_policy_scoped, only: :index
+end
+```
+
+### Skipping verification
+
+If you're using `verify_authorized` in your controllers but need to conditionally bypass verification, you can use `skip_authorization`. For bypassing `verify_policy_scoped`, use `skip_policy_scope`.
+```ruby
+def create
+  record = Record.new(attributes)
+
+  if record.valid?
+    authorize record
+  else
+    skip_authorization
+  end
+end
 
 ## Rspec
 

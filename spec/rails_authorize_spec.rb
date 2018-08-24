@@ -12,6 +12,7 @@ RSpec.describe RailsAuthorize do
   let(:user) { {name: 'User'} }
   let(:current_user) { {name: 'Current user'} }
   let(:action_name) { :index }
+  let(:controller) { Controller.new(user, 'index') }
 
   describe '.policy' do
     context 'when use default values' do
@@ -201,6 +202,85 @@ RSpec.describe RailsAuthorize do
         expect(subject).to receive(:policy).with(Post, {}).and_return(policy)
         expect(policy).to receive('custom?').and_return(true)
         subject.authorized_scope(Post, action: 'custom?')
+      end
+    end
+  end
+
+  describe '.verify_authorized' do
+    context 'when .skip_authorization is used' do
+      before do
+        controller.skip_authorization
+      end
+
+      it 'does nothing' do
+        controller.verify_authorized
+      end
+    end
+
+    context 'when .authorize is called' do
+      before do
+        controller.authorize(post)
+      end
+
+      it 'does nothing' do
+        controller.verify_authorized
+      end
+    end
+
+    context 'when .authorized_scope is used' do
+      before do
+        controller.authorized_scope(post)
+      end
+
+      it 'does nothing' do
+        controller.verify_authorized
+      end
+    end
+
+    context 'when is not authorized' do
+      it 'raises an AuthorizationNotPerformedError exception' do
+        expect { controller.verify_authorized }.to raise_error(
+          RailsAuthorize::AuthorizationNotPerformedError
+        )
+      end
+    end
+  end
+
+  describe '.verify_policy_scoped' do
+    context 'when .skip_policy_scope is used' do
+      before do
+        controller.skip_policy_scope
+      end
+
+      it 'does nothing' do
+        controller.verify_policy_scoped
+      end
+    end
+
+    context 'when .policy_scope is used' do
+      before do
+        controller.policy_scope(Post)
+      end
+
+      it 'does nothing' do
+        controller.verify_policy_scoped
+      end
+    end
+    context 'when .authorized_scope is used' do
+      before do
+        controller.authorized_scope(post)
+      end
+
+      it 'does nothing' do
+        controller.verify_authorized
+      end
+    end
+
+    context 'when is not authorized' do
+      it 'raises an ScopingNotPerformedError exception' do
+        expect { controller.verify_policy_scoped }.to raise_error(
+          RailsAuthorize::ScopingNotPerformedError
+        )
       end
     end
   end
