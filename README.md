@@ -1,4 +1,5 @@
 # RailsAuthorize
+[![Gem Version](https://badge.fury.io/rb/rails_authorize.svg)](https://badge.fury.io/rb/rails_authorize)
 ![Build Status](https://travis-ci.org/rjurado01/rails_authorize.svg?branch=master)
 
 Simple and flexible authorization Rails system inspired by Pundit.
@@ -256,6 +257,7 @@ def create
     skip_authorization
   end
 end
+```
 
 ## Rspec
 
