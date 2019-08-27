@@ -6,6 +6,6 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 gemspec
 
 group :test do
-  gem 'activesupport', '>= 3.0.0'
-  gem 'actionpack', '>= 3.0.0'
+  gem 'activesupport', '>= 5.0.0'
+  gem 'actionpack', '>= 5.0.0'
 end
