@@ -166,6 +166,35 @@ class PostPolicy < ApplicationPolicy
 end
 ```
 
+## Use without target
+
+Sometimes you need to authorize a controller action that it doesn't use a model to authorize.
+
+For this situations you can omit `target` and pass only options with `policy` to `authorize`:
+
+```ruby
+# app/controllers/custom_controller.rb
+
+class CustomController
+  def show
+    authorize policy: CustomPolicy
+    ...
+  end
+end
+```
+
+```ruby
+# app/policies/custom_policy.rb
+
+class CustomPolicy < ApplicationPolicy
+  def show?
+    # target is nil
+    ...
+  end
+end
+```
+
+
 ## Strong parameters
 
 Rails uses [strong_parameters](http://edgeguides.rubyonrails.org/action_controller_overview.html#strong-parameters) to handle mass-assignment protection in the controller.  With this gem you can control which attributes a user has access via your policies.

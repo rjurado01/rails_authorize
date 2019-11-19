@@ -35,6 +35,8 @@ module RailsAuthorize
   # @return [Object] the passed target
   #
   def authorize(target, options={})
+    return authorize(nil, target) if target.is_a?(Hash)
+
     action = options.delete(:action) || "#{action_name}?"
     policy = policy(target, options)
 
@@ -42,7 +44,7 @@ module RailsAuthorize
 
     @_policy_authorized = true
 
-    target
+    target || true
   end
 
   ##
