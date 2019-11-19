@@ -94,6 +94,12 @@ RSpec.describe RailsAuthorize do
         subject.authorize(post, action: 'custom?')
       end
     end
+
+    context 'when not pass target' do
+      it 'authorize policy' do
+        expect(subject.authorize(policy: PostPolicy)).to be true
+      end
+    end
   end
 
   describe '.policy_scope' do
