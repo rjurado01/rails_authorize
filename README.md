@@ -190,9 +190,6 @@ You can now retrieve these attributes from the policy:
 
 ```ruby
 policy(@post).permitted_attributes
-
-# or 
-
 policy(Post).permitted_attributes
 ```
 
@@ -202,6 +199,10 @@ Rails Authorize provides `permitted_attributes` helper method to use it in your 
 # app/controllers/posts_controller.rb
 
 class PostController
+  def create
+    Post.create(permitted_attributes(Post))
+  end
+  
   def update
     @post.update(permitted_attributes(@post))
   end
