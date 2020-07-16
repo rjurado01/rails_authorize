@@ -93,6 +93,8 @@ module RailsAuthorize
   # @param options[:action] [String] the method to check on the policy (e.g. `:show?`)
   # @return [Hash{String => Object}] the permitted attributes
   def permitted_attributes(target, options={})
+    return permitted_attributes(nil, target) if target.is_a?(Hash)
+
     action = options.delete(:action) || action_name
     policy = policy(target, options)
 
@@ -102,7 +104,9 @@ module RailsAuthorize
                     'permitted_attributes'
                   end
 
-    param_key = if policy.try(:param_key).present?
+    param_key = if options[:param_key]
+                  options[:param_key]
+                elsif policy.try(:param_key).present?
                   policy.param_key
                 else
                   target.model_name.name.underscore
