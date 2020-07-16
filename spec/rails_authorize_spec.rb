@@ -41,10 +41,9 @@ RSpec.describe RailsAuthorize do
       end
     end
 
-    context 'when pass :policy option' do
+    context 'when target is nil add pass :policy option' do
       it 'uses this to create instance' do
-        expect(subject.policy({}, policy: PostPolicy).class)
-          .to eq(PostPolicy)
+        expect(subject.policy(nil, policy: PostPolicy).class).to eq(PostPolicy)
       end
     end
 
@@ -172,6 +171,22 @@ RSpec.describe RailsAuthorize do
             'surname' => data_post[:surname]
           )
         end
+      end
+    end
+
+    context 'when not pass target' do
+      before do
+        params = ActionController::Parameters.new(data: data_post)
+        allow(subject).to receive(:params).and_return(params)
+
+        @options = {policy: PostPolicy, param_key: :data}
+        allow(subject).to receive(:policy).with(nil, @options).and_return(@policy)
+
+        allow(@policy).to receive(:permitted_attributes).and_return(%i[name])
+      end
+
+      it 'expect policy option' do
+        expect(subject.permitted_attributes(@options)).to eq({'name' => data_post[:name]})
       end
     end
   end
