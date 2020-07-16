@@ -166,35 +166,6 @@ class PostPolicy < ApplicationPolicy
 end
 ```
 
-## Use without target
-
-Sometimes you need to authorize a controller action that it doesn't use a model to authorize.
-
-For this situations you can omit `target` and pass only options with `policy` to `authorize`:
-
-```ruby
-# app/controllers/custom_controller.rb
-
-class CustomController
-  def show
-    authorize policy: CustomPolicy
-    ...
-  end
-end
-```
-
-```ruby
-# app/policies/custom_policy.rb
-
-class CustomPolicy < ApplicationPolicy
-  def show?
-    # target is nil
-    ...
-  end
-end
-```
-
-
 ## Strong parameters
 
 Rails uses [strong_parameters](http://edgeguides.rubyonrails.org/action_controller_overview.html#strong-parameters) to handle mass-assignment protection in the controller.  With this gem you can control which attributes a user has access via your policies.
@@ -233,7 +204,7 @@ class PostController
 end
 ```
 
-By default `permitted_attributes` makes `params.require(:post)` if you want to personalize what attribute is required in params, your policy must define a `param_key`.
+By default `permitted_attributes` makes `params.require(:post)` if you want to personalize what attribute is required in params, your policy must define a `param_key`:
 
 ```ruby
 # app/policies/post_policy.rb
@@ -241,6 +212,18 @@ By default `permitted_attributes` makes `params.require(:post)` if you want to p
 class PostPolicy < ApplicationPolicy
   def param_key
     'custom_key'
+  end
+end
+```
+
+Also, you can pass custom key as option using `param_key` for specific situations:
+
+```ruby
+# app/controllers/posts_controller.rb
+
+class PostController
+  def update
+    @post.update(permitted_attributes(@post, param_key: 'custom_key'))
   end
 end
 ```
@@ -260,6 +243,46 @@ class PostPolicy < ApplicationPolicy
   end
 end
 ```
+
+## Use without target
+
+Sometimes you need to authorize a controller action that it doesn't use a model to authorize.
+
+For this situations you can omit `target` and pass only options with `policy` to `authorize` or `permitted_attributes`:
+
+```ruby
+# app/controllers/custom_controller.rb
+
+class CustomController
+  def show
+    authorize policy: CustomPolicy
+    ...
+  end
+
+  def create
+    resource = Resource.new(permitted_attributes(policy: CustomPolicy))
+    ...
+  end
+end
+```
+
+```ruby
+# app/policies/custom_policy.rb
+
+class CustomPolicy < ApplicationPolicy
+  def show?
+    # target is nil
+    ...
+  end
+
+  def permitted_attributes
+    [:title, :body]
+  end
+end
+```
+
+
+
 ## Ensuring authorization and scoping are performed
 
 In certain kind of applications where almost all or even the whole application is private, in each of the actions you have to make sure that authorization is performed. To make sure that developers perform authorization, RailsAuthorize provides two methods. `verify_authorized` makes sure that authorization is performed, and likewise `verify_policy_scoped` checks that scoping is performed 
