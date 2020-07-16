@@ -191,7 +191,7 @@ You can now retrieve these attributes from the policy:
 ```ruby
 policy(@post).permitted_attributes
 
-or 
+# or 
 
 policy(Post).permitted_attributes
 ```
