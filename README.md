@@ -190,6 +190,10 @@ You can now retrieve these attributes from the policy:
 
 ```ruby
 policy(@post).permitted_attributes
+
+or 
+
+policy(Post).permitted_attributes
 ```
 
 Rails Authorize provides `permitted_attributes` helper method to use it in your controllers:
