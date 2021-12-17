@@ -190,6 +190,60 @@ RSpec.describe RailsAuthorize do
       end
     end
   end
+  
+  describe '.permitted_attributes' do
+    let(:representations) { %i[basic complete] }
+    let(:params) { ActionController::Parameters.new }
+
+    before do
+      @policy = PostPolicy.new user, post, {}
+      allow(subject).to receive(:params).and_return params
+    end
+
+    context 'when passing target' do
+      before do
+        allow(subject).to receive(:policy).with(post, {}).and_return @policy
+      end
+
+      context 'when has a generic method of permitted_representations' do
+        before do
+          allow(@policy).to receive(:permitted_representations).and_return representations
+        end
+
+        it 'is called' do
+          expect(subject.permitted_representations(post)).to match_array representations
+        end
+      end
+
+      context 'when has a specific method for current action' do
+        before do
+          allow(@policy).to receive(:permitted_representations_for_create).and_return(
+            representations
+          )
+        end
+
+        it 'is called instead of generic' do
+          expect(subject.permitted_representations(post, action: :create)).to match_array(
+            representations
+          )
+        end
+      end
+    end
+
+    context 'when not pass target' do
+      let(:options) { {policy: PostPolicy} }
+
+      before do
+        allow(subject).to receive(:policy).with(nil, options).and_return @policy
+
+        allow(@policy).to receive(:permitted_representations).and_return representations
+      end
+      
+      it 'expect policy option' do
+        expect(subject.permitted_representations(options)).to match_array representations
+      end
+    end
+  end
 
   describe '.authorized_scope' do
     context 'when policy method returns true' do

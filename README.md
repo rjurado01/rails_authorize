@@ -69,6 +69,14 @@ class PostPolicy < ApplicationPolicy
       %i[body title]
     end
   end
+  
+  def permitted_representations
+    if user.admin?
+      %i[complete basic]
+    else
+      %i[basic]
+    end
+  end
 end
 ```
 
@@ -168,7 +176,7 @@ end
 
 ## Strong parameters
 
-Rails uses [strong_parameters](http://edgeguides.rubyonrails.org/action_controller_overview.html#strong-parameters) to handle mass-assignment protection in the controller.  With this gem you can control which attributes a user has access via your policies.
+Rails uses [strong_parameters](http://edgeguides.rubyonrails.org/action_controller_overview.html#strong-parameters) to handle mass-assignment protection in the controller. With this gem you can control which attributes a user has access via your policies.
 
 You can set up a `permitted_attributes` method in your policy like this:
 
@@ -249,6 +257,87 @@ class PostPolicy < ApplicationPolicy
 end
 ```
 
+## Restrict representations
+
+With this gem you can control which representations a user has access via your policies.
+
+You can set up a `permitted_representations` method in your policy like this:
+
+```ruby
+# app/policies/post_policy.rb
+
+class PostPolicy < ApplicationPolicy
+  def permitted_representations
+    if user.admin?
+      %i[complete basic]
+    else
+      %i[basic]
+    end
+  end
+end
+```
+
+You can now retrieve these attributes from the policy:
+
+```ruby
+policy(@post).permitted_representations
+policy(Post).permitted_representations
+```
+
+Rails Authorize provides `permitted_representations` helper method to use it in your controllers:
+
+```ruby
+# app/controllers/posts_controller.rb
+
+class PostController
+  def index
+    items = Post.all
+
+    render json: {data: items.representation representation}
+  end
+  
+  def show
+    item = Post.first
+
+    render json: {data: item.representation representation}
+  end
+  
+  private
+  
+  def representation
+    name = params[:representation]&.to_sym || default_representation
+
+    return name if representation_whitelist.empty?
+
+    representation_whitelist.include?(name) ? name : default_representation
+  end
+  
+  def representation_whitelist
+    permitted_representations(Post) || []
+  end
+  
+  def default_representation
+    :basic
+  end
+end
+```
+
+If you want to permit different representations based on the current action, you can define a `permitted_representations_for_#{action_name}` method on your policy:
+
+```ruby
+# app/policies/post_policy.rb
+
+class PostPolicy < ApplicationPolicy
+  def permitted_representations_for_create
+    %i[complete basic]
+  end
+
+  def permitted_representations_for_update
+    %i[basic]
+  end
+end
+```
+
 ## Use without target
 
 Sometimes you need to authorize a controller action that it doesn't use a model to authorize.
@@ -285,8 +374,6 @@ class CustomPolicy < ApplicationPolicy
   end
 end
 ```
-
-
 
 ## Ensuring authorization and scoping are performed
 
