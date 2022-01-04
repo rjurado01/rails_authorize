@@ -83,12 +83,12 @@ module RailsAuthorize
   end
 
   # Retrieves a set of permitted attributes from the policy by instantiating
-  # the policy class for the given record and calling `permitted_attributes` on
+  # the policy class for the given target and calling `permitted_attributes` on
   # it, or `permitted_attributes_for_{action}` if `action` is defined. It then infers
-  # what key the record should have in the params hash and retrieves the
+  # what key the target should have in the params hash and retrieves the
   # permitted attributes from the params hash under that key.
   #
-  # @param record [Object] the object we're retrieving permitted attributes for
+  # @param target [Object] the object we're retrieving permitted attributes for
   # @param options [Hash] key/value options (action, user, policy, context)
   # @param options[:action] [String] the method to check on the policy (e.g. `:show?`)
   # @return [Hash{String => Object}] the permitted attributes
@@ -113,6 +113,29 @@ module RailsAuthorize
                 end
 
     params.require(param_key).permit(*policy.public_send(method_name))
+  end
+  
+  # Retrieves a set of permitted representations from the policy by instantiating
+  # the policy class for the given target and calling `permitted_representations` on
+  # it, or `permitted_representations_for_{action}` if `action` is defined.
+  #
+  # @param target [Object] the object we're retrieving permitted representations for
+  # @param options [Hash] key/value options (action, user, policy, context)
+  # @param options[:action] [String] the method to check on the policy (e.g. `:show?`)
+  # @return [Hash{String => Object}] the permitted representations
+  def permitted_representations(target, options={})
+    return permitted_representations(nil, target) if target.is_a?(Hash)
+
+    action = options.delete(:action) || action_name
+    policy = policy(target, options)
+
+    method_name = if policy.respond_to?("permitted_representations_for_#{action}")
+                    "permitted_representations_for_#{action}"
+                  else
+                    'permitted_representations'
+                  end
+
+    policy.public_send method_name
   end
 
   # Raises an error if authorization has not been performed
